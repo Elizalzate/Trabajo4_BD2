@@ -59,24 +59,37 @@ CREATE OR REPLACE PROCEDURE llenado_aleatorio_detalle
     nro_unidades_n NUMBER(20);
     valor_unitario_n NUMBER(20);
     codfact_n NUMBER(20);
-    controlador NUMBER(2);
+    CURSOR cursor_codfact IS SELECT codigof FROM factura;
+    controlador NUMBER(10);
 BEGIN
+    SELECT COUNT(*) INTO controlador FROM detalle;
+    OPEN cursor_codfact;
     FOR cont IN 1..nro_entradas
         LOOP
+            FETCH cursor_codfact INTO codfact_n;
+            IF cursor_codfact%NOTFOUND THEN
+                CLOSE cursor_codfact;
+                OPEN cursor_codfact;
+                FETCH cursor_codfact INTO codfact_n;
+            END IF;
+            SELECT COUNT(*) INTO controlador FROM detalle WHERE codfact = codfact_n;
+            WHILE controlador >= maxDetalles
+                LOOP
+                    FETCH cursor_codfact INTO codfact_n;
+                    EXIT WHEN cursor_codfact%NOTFOUND;
+                    SELECT COUNT(*) INTO controlador FROM detalle WHERE codfact = codfact_n;
+                END LOOP;
+
+            IF cursor_codfact%NOTFOUND THEN
+                CONTINUE;
+            end if;
+
             SELECT dbms_random.value(1,999999999999999999) into codigod_n FROM dual;
             SELECT COUNT(*) INTO controlador FROM detalle WHERE codigod = codigod_n;
             WHILE controlador <> 0
                 LOOP
                     SELECT dbms_random.value(1,999999999999999999) into codigod_n FROM dual;
                     SELECT COUNT(*) INTO controlador FROM detalle WHERE codigod = codigod_n;
-                END LOOP;
-
-            SELECT codigof into codfact_n FROM (SELECT * FROM factura ORDER BY dbms_random.value) WHERE rownum = 1;
-            SELECT COUNT(*) INTO controlador FROM detalle WHERE codfact = codfact_n;
-            WHILE controlador >= maxDetalles
-                LOOP
-                    SELECT codigof into codfact_n FROM (SELECT * FROM factura ORDER BY dbms_random.value) WHERE rownum = 1;
-                    SELECT COUNT(*) INTO controlador FROM detalle WHERE codfact = codfact_n;
                 END LOOP;
 
             SELECT dbms_random.value(1,999999999999999999) into codproducto_n FROM dual;
@@ -88,7 +101,7 @@ BEGIN
 END;
 /
 
-/* Primer experimiento */       
+/* Primer experimento */
 
 /* A */
 
