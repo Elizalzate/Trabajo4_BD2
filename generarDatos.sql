@@ -1,3 +1,8 @@
+/* Trabajo 4 - Bases de Datos 2 */
+/* Integrantes: */
+/* Elizabeth Alzate Zapata */
+/* Cristian Mejia Martinez */
+
 /* Creacion de tablas */
 DROP TABLE detalle;
 /
