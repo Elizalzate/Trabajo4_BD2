@@ -1,11 +1,10 @@
 /* Trabajo 4 - Bases de Datos 2 */
 /* Integrantes: */
-/* Elizabeth Alzate Zapata */
-/* Cristian Mejia Martinez */
+/* Elízabeth Alzate Zapata */
+/* Cristian Mejía Martinez */
 
 /* Creacion de tablas */
 DROP TABLE detalle;
-/
 DROP TABLE factura;
 /
 
@@ -13,7 +12,6 @@ CREATE TABLE factura(
     codigof NUMBER(20) PRIMARY KEY,
     fecha DATE NOT NULL
 );
-/
 
 CREATE TABLE detalle(
     codigod NUMBER(20) PRIMARY KEY,
@@ -310,6 +308,84 @@ WHERE STATEMENT_ID = 'E1D2C'
 CONNECT BY PRIOR ID = PARENT_ID
 START WITH ID = 0;
 
+/* D */
+/* Limpiar las tablas */
+DROP TABLE detalle;
+DROP TABLE factura;
+
+/* Creacion de las tablas de forma objeto relacional */
+CREATE TYPE facturaObj AS OBJECT(
+     codigof NUMBER(20),
+     fecha DATE
+);
+
+CREATE TYPE detalleObj AS OBJECT(
+    codigod NUMBER(20),
+    codproducto NUMBER(20),
+    nro_unidades NUMBER(20),
+    valor_unitario NUMBER(20),
+    dfactura REF facturaObj
+);
+
+/* Procedimiento llenado aleatorio factura objeto PL/SQL */
+
+CREATE OR REPLACE PROCEDURE llenado_aleatorio_facturaObj
+(nro_entradas IN NUMBER) IS
+codigof_n NUMBER(20);
+fecha_rand DATE;
+controlador NUMBER(2);
+fac facturaObj;
+BEGIN
+    FOR cont IN 1..nro_entradas
+    LOOP
+        fac:= NEW facturaObj(dbms_random.value(1,999999999999999999), TO_DATE(
+                TRUNC(
+                    DBMS_RANDOM.VALUE(TO_CHAR(DATE '1950-01-01','J')
+                                      ,TO_CHAR(DATE '2022-12-31','J')
+                                     )
+                    ),'J'
+                ));
+        INSERT INTO factura VALUES (fac);
+    END LOOP;
+END;
+/
+
+/* Procedimiento llenado aleatorio detalleObj PL/SQL */
+
+CREATE OR REPLACE PROCEDURE llenado_aleatorio_detalleObj
+(nro_entradas IN NUMBER, maxDetalles IN NUMBER) IS
+    codfact_n NUMBER(20);
+    CURSOR cursor_codfact IS SELECT codigof FROM factura;
+    detalle detalleObj;
+BEGIN
+    OPEN cursor_codfact;
+    FOR cont IN 1..nro_entradas
+        LOOP
+            FETCH cursor_codfact INTO codfact_n;
+            IF cursor_codfact%NOTFOUND THEN
+                CLOSE cursor_codfact;
+                OPEN cursor_codfact;
+                FETCH cursor_codfact INTO codfact_n;
+            END IF;
+            detalle:= NEW detalleObj(dbms_random.value(1,999999999999999999), 
+                        dbms_random.value(1,999999999999999999),   
+                        dbms_random.value(1,999999999999999999), 
+                        dbms_random.value(1,999999999999999999),
+                        REF(codfact_n));
+            INSERT INTO detalle VALUES (detalle);
+        END LOOP;
+END;
+/
+
+
+CREATE TABLE factura OF facturaObj;
+CREATE TABLE detalle OF detalleObj;
+
+
+/* Llenar las tablas con pocos datos */
+EXEC llenado_aleatorio_facturaObj(5000);
+EXEC llenado_aleatorio_detalleObj(20000, 7);
+ 
 /* -------------------------------------------------------*/
 /* Segundo experimento */
 /* -------------------------------------------------------*/
