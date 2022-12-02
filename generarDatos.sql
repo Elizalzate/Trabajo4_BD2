@@ -50,7 +50,6 @@ END;
 /
 
 /* Procedimiento llenado aleatorio detalle PL/SQL */
-/* ADVERTENCIA: para generar 100000 valores o mas puede exceder el tiempo limite de ejecucion */
 
 CREATE OR REPLACE PROCEDURE llenado_aleatorio_detalle
 (nro_entradas IN NUMBER, maxDetalles IN NUMBER) IS
@@ -125,17 +124,44 @@ CREATE TABLE detalle(
     );
 
 /* Llenar las tablas con pocos datos */
-EXEC llenado_aleatorio_factura(5000);
-EXEC llenado_aleatorio_detalle(20000, 7);
+BEGIN llenado_aleatorio_factura(5000); END;
+BEGIN llenado_aleatorio_detalle(20000, 7); END;
 
 /* A */
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
+/* Explain Plan */
+EXPLAIN PLAN
+SET STATEMENT_ID = 'E1D1A' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E1D1A'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
+
+
 /* B */
 CREATE INDEX i_codfact ON detalle(codfact);
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E1D1B' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E1D1B'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* C */
 DROP CLUSTER factCluster;
@@ -160,37 +186,24 @@ CREATE TABLE detalle(
     ) CLUSTER factCluster(codfact);
 
 /* Llenar las tablas con pocos datos */
-EXEC llenado_aleatorio_factura(5000);
-EXEC llenado_aleatorio_detalle(20000, 7);
+BEGIN llenado_aleatorio_factura(5000); END;
+BEGIN llenado_aleatorio_detalle(20000, 7); END;
 
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* D */
-/* Limpiar las tablas */
-DROP TABLE detalle;
-DROP TABLE factura;
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E1D1C' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* Creacion de las tablas de forma objeto relacional */
-CREATE TYPE factura AS OBJECT(
-     codigof NUMBER(20),
-     fecha DATE
-);
-
-CREATE TYPE detalle AS OBJECT(
-    codigod NUMBER(20),
-    codproducto NUMBER(20),
-    nro_unidades NUMBER(20),
-    valor_unitario NUMBER(20),
-    dfactura REF factura
-);
-
-/* Llenar las tablas con pocos datos */
-EXEC llenado_aleatorio_factura(5000);
-EXEC llenado_aleatorio_detalle(20000, 7);
-
-/* Ejecutamos la consulta */
-SELECT * FROM detalle;
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E1D1C'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* Muchos datos */
 /* -------------------------------------------------------*/
@@ -212,17 +225,43 @@ CREATE TABLE detalle(
 );
 
 /* Llenar las tablas con muchos datos */
-EXEC llenado_aleatorio_factura(25000);
-EXEC llenado_aleatorio_detalle(100000, 7);
+BEGIN llenado_aleatorio_factura(25000); END;
+BEGIN llenado_aleatorio_detalle(100000, 7); END;
 
 /* A */
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E1D2A' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E1D2A'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
+
 /* B */
 CREATE INDEX i_codfact ON detalle(codfact);
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E1D2B' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E1D2B'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* C */
 DROP CLUSTER factCluster;
@@ -247,37 +286,24 @@ CREATE TABLE detalle(
 ) CLUSTER factCluster(codfact);
 
 /* Llenar las tablas con muchos */
-EXEC llenado_aleatorio_factura(25000);
-EXEC llenado_aleatorio_detalle(100000, 7);
+BEGIN llenado_aleatorio_factura(25000); END;
+BEGIN llenado_aleatorio_detalle(100000, 7); END;
 
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* D */
-/* Limpiar las tablas */
-DROP TABLE detalle;
-DROP TABLE factura;
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E1D2C' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* Creacion de las tablas de forma objeto relacional */
-CREATE TYPE factura AS OBJECT(
-                                 codigof NUMBER(20),
-                                 fecha DATE
-                             );
-
-CREATE TYPE detalle AS OBJECT(
-                                 codigod NUMBER(20),
-                                 codproducto NUMBER(20),
-                                 nro_unidades NUMBER(20),
-                                 valor_unitario NUMBER(20),
-                                 dfactura REF factura
-                             );
-
-/* Llenar las tablas con muchos datos */
-EXEC llenado_aleatorio_factura(25000);
-EXEC llenado_aleatorio_detalle(100000, 7);
-
-/* Ejecutamos la consulta */
-SELECT * FROM detalle;
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E1D2C'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* -------------------------------------------------------*/
 /* Segundo experimento */
@@ -303,17 +329,43 @@ CREATE TABLE detalle(
 );
 
 /* Llenar las tablas con pocos datos */
-EXEC llenado_aleatorio_factura(5000);
-EXEC llenado_aleatorio_detalle(10000, 3);
+BEGIN llenado_aleatorio_factura(5000); END;
+BEGIN llenado_aleatorio_detalle(10000, 3); END;
 
 /* A */
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E2D1A' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E2D1A'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
+
 /* B */
 CREATE INDEX i_codfact ON detalle(codfact);
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E2D1B' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E2D1B'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* C */
 DROP CLUSTER factCluster;
@@ -338,37 +390,24 @@ CREATE TABLE detalle(
 ) CLUSTER factCluster(codfact);
 
 /* Llenar las tablas con pocos datos */
-EXEC llenado_aleatorio_factura(5000);
-EXEC llenado_aleatorio_detalle(10000, 3);
+BEGIN llenado_aleatorio_factura(5000); END;
+BEGIN llenado_aleatorio_detalle(10000, 3); END;
 
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* D */
-/* Limpiar las tablas */
-DROP TABLE detalle;
-DROP TABLE factura;
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E2D1C' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* Creacion de las tablas de forma objeto relacional */
-CREATE TYPE factura AS OBJECT(
-                                 codigof NUMBER(20),
-                                 fecha DATE
-                             );
-
-CREATE TYPE detalle AS OBJECT(
-                                 codigod NUMBER(20),
-                                 codproducto NUMBER(20),
-                                 nro_unidades NUMBER(20),
-                                 valor_unitario NUMBER(20),
-                                 dfactura REF factura
-                             );
-
-/* Llenar las tablas con pocos datos */
-EXEC llenado_aleatorio_factura(5000);
-EXEC llenado_aleatorio_detalle(10000, 3);
-
-/* Ejecutamos la consulta */
-SELECT * FROM detalle;
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E2D1C'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* Muchos datos */
 /* -------------------------------------------------------*/
@@ -390,17 +429,43 @@ CREATE TABLE detalle(
 );
 
 /* Llenar las tablas con muchos datos */
-EXEC llenado_aleatorio_factura(50000);
-EXEC llenado_aleatorio_detalle(100000, 3);
+BEGIN llenado_aleatorio_factura(50000); END;
+BEGIN llenado_aleatorio_detalle(100000, 3); END;
 
 /* A */
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E2D2A' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E2D2A'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
+
 /* B */
 CREATE INDEX i_codfact ON detalle(codfact);
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E2D2B' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E2D2B'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* C */
 DROP CLUSTER factCluster;
@@ -425,37 +490,24 @@ CREATE TABLE detalle(
 ) CLUSTER factCluster(codfact);
 
 /* Llenar las tablas con muchos */
-EXEC llenado_aleatorio_factura(50000);
-EXEC llenado_aleatorio_detalle(100000, 3);
+BEGIN llenado_aleatorio_factura(50000); END;
+BEGIN llenado_aleatorio_detalle(100000, 3); END;
 
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* D */
-/* Limpiar las tablas */
-DROP TABLE detalle;
-DROP TABLE factura;
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E2D2C' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* Creacion de las tablas de forma objeto relacional */
-CREATE TYPE factura AS OBJECT(
-                                 codigof NUMBER(20),
-                                 fecha DATE
-                             );
-
-CREATE TYPE detalle AS OBJECT(
-                                 codigod NUMBER(20),
-                                 codproducto NUMBER(20),
-                                 nro_unidades NUMBER(20),
-                                 valor_unitario NUMBER(20),
-                                 dfactura REF factura
-                             );
-
-/* Llenar las tablas con muchos datos */
-EXEC llenado_aleatorio_factura(50000);
-EXEC llenado_aleatorio_detalle(100000, 3);
-
-/* Ejecutamos la consulta */
-SELECT * FROM detalle;
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E2D2C'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* -------------------------------------------------------*/
 /* Tercer experimento  */
@@ -481,17 +533,43 @@ CREATE TABLE detalle(
 );
 
 /* Llenar las tablas con pocos datos */
-EXEC llenado_aleatorio_factura(5000);
-EXEC llenado_aleatorio_detalle(5000, 1);
+BEGIN llenado_aleatorio_factura(5000); END;
+BEGIN llenado_aleatorio_detalle(5000, 1); END;
 
 /* A */
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E3D1A' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E3D1A'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
+
 /* B */
 CREATE INDEX i_codfact ON detalle(codfact);
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E3D1B' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E3D1B'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* C */
 DROP CLUSTER factCluster;
@@ -516,37 +594,24 @@ CREATE TABLE detalle(
 ) CLUSTER factCluster(codfact);
 
 /* Llenar las tablas con pocos datos */
-EXEC llenado_aleatorio_factura(5000);
-EXEC llenado_aleatorio_detalle(5000, 1);
+BEGIN llenado_aleatorio_factura(5000); END;
+BEGIN llenado_aleatorio_detalle(5000, 1); END;
 
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* D */
-/* Limpiar las tablas */
-DROP TABLE detalle;
-DROP TABLE factura;
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E3D1C' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* Creacion de las tablas de forma objeto relacional */
-CREATE TYPE factura AS OBJECT(
-                                 codigof NUMBER(20),
-                                 fecha DATE
-                             );
-
-CREATE TYPE detalle AS OBJECT(
-                                 codigod NUMBER(20),
-                                 codproducto NUMBER(20),
-                                 nro_unidades NUMBER(20),
-                                 valor_unitario NUMBER(20),
-                                 dfactura REF factura
-                             );
-
-/* Llenar las tablas con pocos datos */
-EXEC llenado_aleatorio_factura(5000);
-EXEC llenado_aleatorio_detalle(5000, 1);
-
-/* Ejecutamos la consulta */
-SELECT * FROM detalle;
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E3D1C'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* Muchos datos */
 /* -------------------------------------------------------*/
@@ -568,17 +633,43 @@ CREATE TABLE detalle(
 );
 
 /* Llenar las tablas con muchos datos */
-EXEC llenado_aleatorio_factura(50000);
-EXEC llenado_aleatorio_detalle(50000, 1);
+BEGIN llenado_aleatorio_factura(50000); END;
+BEGIN llenado_aleatorio_detalle(50000, 1); END;
 
 /* A */
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E3D2A' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E3D2A'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
+
 /* B */
 CREATE INDEX i_codfact ON detalle(codfact);
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E3D2B' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E3D2B'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
 
 /* C */
 DROP CLUSTER factCluster;
@@ -603,34 +694,21 @@ CREATE TABLE detalle(
 ) CLUSTER factCluster(codfact);
 
 /* Llenar las tablas con muchos */
-EXEC llenado_aleatorio_factura(50000);
-EXEC llenado_aleatorio_detalle(50000, 1);
+BEGIN llenado_aleatorio_factura(50000); END;
+BEGIN llenado_aleatorio_detalle(50000, 1); END;
 
 /* Ejecutamos la consulta */
 SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* D */
-/* Limpiar las tablas */
-DROP TABLE detalle;
-DROP TABLE factura;
+/* Explain Plan */
+EXPLAIN PLAN
+    SET STATEMENT_ID = 'E3D2C' FOR
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
-/* Creacion de las tablas de forma objeto relacional */
-CREATE TYPE factura AS OBJECT(
-                                 codigof NUMBER(20),
-                                 fecha DATE
-                             );
-
-CREATE TYPE detalle AS OBJECT(
-                                 codigod NUMBER(20),
-                                 codproducto NUMBER(20),
-                                 nro_unidades NUMBER(20),
-                                 valor_unitario NUMBER(20),
-                                 dfactura REF factura
-                             );
-
-/* Llenar las tablas con muchos datos */
-EXEC llenado_aleatorio_factura(50000);
-EXEC llenado_aleatorio_detalle(50000, 1);
-
-/* Ejecutamos la consulta */
-SELECT * FROM detalle;
+SELECT LPAD(' ', 2*LEVEL) || OPERATION || ' '
+           || OPTIONS || ' ' || OBJECT_NAME
+           AS query_plan
+FROM PLAN_TABLE
+WHERE STATEMENT_ID = 'E3D2C'
+CONNECT BY PRIOR ID = PARENT_ID
+START WITH ID = 0;
