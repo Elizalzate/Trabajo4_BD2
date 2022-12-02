@@ -71,11 +71,11 @@ BEGIN
                     SELECT COUNT(*) INTO controlador FROM detalle WHERE codigod = codigod_n;
                 END LOOP;
 
-            SELECT codigof into codfact_n FROM factura ORDER BY codigof FETCH FIRST 1 ROWS ONLY;
+            SELECT codigof into codfact_n FROM (SELECT * FROM factura ORDER BY dbms_random.value) WHERE rownum = 1;
             SELECT COUNT(*) INTO controlador FROM detalle WHERE codfact = codfact_n;
             WHILE controlador >= maxDetalles
                 LOOP
-                    SELECT codigof into codfact_n FROM factura ORDER BY dbms_random.value FETCH FIRST 1 ROWS ONLY;
+                    SELECT codigof into codfact_n FROM (SELECT * FROM factura ORDER BY dbms_random.value) WHERE rownum = 1;
                     SELECT COUNT(*) INTO controlador FROM detalle WHERE codfact = codfact_n;
                 END LOOP;
 
