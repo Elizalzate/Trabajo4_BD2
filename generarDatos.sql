@@ -101,17 +101,187 @@ BEGIN
 END;
 /
 
+/* -------------------------------------------------------*/
 /* Primer experimento */
+/* -------------------------------------------------------*/
+
+/* Pocos datos */
+/* -------------------------------------------------------*/
+
+/* Limpiar las tablas */
+DROP TABLE detalle;
+DROP TABLE factura;
+CREATE TABLE factura(
+    codigof NUMBER(20) PRIMARY KEY,
+    fecha DATE NOT NULL
+    );
+
+CREATE TABLE detalle(
+    codigod NUMBER(20) PRIMARY KEY,
+    codproducto NUMBER(20) NOT NULL,
+    nro_unidades NUMBER(20) NOT NULL,
+    valor_unitario NUMBER(20) NOT NULL,
+    codfact NUMBER(20) NOT NULL REFERENCES factura
+    );
+
+/* Llenar las tablas con pocos datos */
+EXEC llenado_aleatorio_factura(5000);
+EXEC llenado_aleatorio_detalle(20000, 7);
 
 /* A */
+/* Ejecutamos la consulta */
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
 /* B */
+CREATE INDEX i_codfact ON detalle(codfact);
+/* Ejecutamos la consulta */
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
 /* C */
+DROP CLUSTER factCluster;
+DROP INDEX i_factCluster;
+CREATE CLUSTER factCluster (codi_fact NUMBER(20));
+CREATE INDEX i_factCluster ON CLUSTER factCluster;
+
+/* Limpiar las tablas y crearlas en el cluster */
+DROP TABLE detalle;
+DROP TABLE factura;
+CREATE TABLE factura(
+    codigof NUMBER(20) PRIMARY KEY,
+    fecha DATE NOT NULL
+    ) CLUSTER factCluster(codigof);
+
+CREATE TABLE detalle(
+    codigod NUMBER(20) PRIMARY KEY,
+    codproducto NUMBER(20) NOT NULL,
+    nro_unidades NUMBER(20) NOT NULL,
+    valor_unitario NUMBER(20) NOT NULL,
+    codfact NUMBER(20) NOT NULL REFERENCES factura
+    ) CLUSTER factCluster(codfact);
+
+/* Llenar las tablas con pocos datos */
+EXEC llenado_aleatorio_factura(5000);
+EXEC llenado_aleatorio_detalle(20000, 7);
+
+/* Ejecutamos la consulta */
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
 
 /* D */
+/* Limpiar las tablas */
+DROP TABLE detalle;
+DROP TABLE factura;
 
+/* Creacion de las tablas de forma objeto relacional */
+CREATE TYPE factura AS OBJECT(
+     codigof NUMBER(20),
+     fecha DATE
+);
+
+CREATE TYPE detalle AS OBJECT(
+    codigod NUMBER(20),
+    codproducto NUMBER(20),
+    nro_unidades NUMBER(20),
+    valor_unitario NUMBER(20),
+    dfactura REF factura
+);
+
+/* Llenar las tablas con pocos datos */
+EXEC llenado_aleatorio_factura(5000);
+EXEC llenado_aleatorio_detalle(20000, 7);
+
+/* Ejecutamos la consulta */
+SELECT * FROM detalle;
+
+/* Datos Medianos */
+/* -------------------------------------------------------*/
+
+/* Limpiar las tablas */
+DROP TABLE detalle;
+DROP TABLE factura;
+CREATE TABLE factura(
+                        codigof NUMBER(20) PRIMARY KEY,
+                        fecha DATE NOT NULL
+);
+
+CREATE TABLE detalle(
+                        codigod NUMBER(20) PRIMARY KEY,
+                        codproducto NUMBER(20) NOT NULL,
+                        nro_unidades NUMBER(20) NOT NULL,
+                        valor_unitario NUMBER(20) NOT NULL,
+                        codfact NUMBER(20) NOT NULL REFERENCES factura
+);
+
+/* Llenar las tablas con datos medianos */
+EXEC llenado_aleatorio_factura(25000);
+EXEC llenado_aleatorio_detalle(100000, 7);
+
+/* A */
+/* Ejecutamos la consulta */
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+/* B */
+CREATE INDEX i_codfact ON detalle(codfact);
+/* Ejecutamos la consulta */
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+/* C */
+DROP CLUSTER factCluster;
+DROP INDEX i_factCluster;
+CREATE CLUSTER factCluster (codi_fact NUMBER(20));
+CREATE INDEX i_factCluster ON CLUSTER factCluster;
+
+/* Limpiar las tablas y crearlas en el cluster */
+DROP TABLE detalle;
+DROP TABLE factura;
+CREATE TABLE factura(
+                        codigof NUMBER(20) PRIMARY KEY,
+                        fecha DATE NOT NULL
+) CLUSTER factCluster(codigof);
+
+CREATE TABLE detalle(
+                        codigod NUMBER(20) PRIMARY KEY,
+                        codproducto NUMBER(20) NOT NULL,
+                        nro_unidades NUMBER(20) NOT NULL,
+                        valor_unitario NUMBER(20) NOT NULL,
+                        codfact NUMBER(20) NOT NULL REFERENCES factura
+) CLUSTER factCluster(codfact);
+
+/* Llenar las tablas con datos medianos */
+EXEC llenado_aleatorio_factura(25000);
+EXEC llenado_aleatorio_detalle(100000, 7);
+
+/* Ejecutamos la consulta */
+SELECT * FROM factura f, detalle d WHERE f.codigof = d.codfact;
+
+/* D */
+/* Limpiar las tablas */
+DROP TABLE detalle;
+DROP TABLE factura;
+
+/* Creacion de las tablas de forma objeto relacional */
+CREATE TYPE factura AS OBJECT(
+                                 codigof NUMBER(20),
+                                 fecha DATE
+                             );
+
+CREATE TYPE detalle AS OBJECT(
+                                 codigod NUMBER(20),
+                                 codproducto NUMBER(20),
+                                 nro_unidades NUMBER(20),
+                                 valor_unitario NUMBER(20),
+                                 dfactura REF factura
+                             );
+
+/* Llenar las tablas con datos medianos */
+EXEC llenado_aleatorio_factura(25000);
+EXEC llenado_aleatorio_detalle(100000, 7);
+
+/* Ejecutamos la consulta */
+SELECT * FROM detalle;
+
+/* -------------------------------------------------------*/
 /* Segundo experimento */
+/* -------------------------------------------------------*/
 
 /* A */
 
@@ -121,7 +291,9 @@ END;
 
 /* D */
 
+/* -------------------------------------------------------*/
 /* Tercer experimento  */
+/* -------------------------------------------------------*/
 
 /* A */
 
